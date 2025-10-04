@@ -10,7 +10,7 @@
 **Mini-Supervisor** is a modular, lightweight framework for detecting **semantic**, **statistical**, and **calibration drift** in real-time data streams.  
 It provides a flexible architecture that integrates **embedding-based comparison**, **k-nearest neighbor classification**, and **calibration metrics** to flag deviations from a learned baseline.
 
-Originally developed as part of a research poster for **US-RSE 2025**, this demo highlights the system’s adaptability across multiple domains—from experimental instrumentation to AI reliability monitoring.
+Originally developed as part of a research poster for **US-RSE 2025**, this demo highlights the system’s adaptability across multiple domains, from experimental instrumentation to AI reliability monitoring.
 
 ---
 
