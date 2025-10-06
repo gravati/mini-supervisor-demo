@@ -20,12 +20,12 @@ if adapter_name == "Signals":
 elif adapter_name == "Text":
     st.info("Imagine you're monitoring a LLM 'agent' meant to operate a vending machine. The supervisor can track its 'chain of thought' and actions (such as emails to vendors) to ensure that the agent remains focused on its assigned task and isn't hallucinating or acting out of context. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
 else:
-    st.info("Imagine you're a chemist using a camera to monitor reactions through a microscope. As lighting changes or lenses fog, image histograms drift. The supervisor can flag these calibration changes automatically - before your image analysis pipeline starts producing unreliable results. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
+    st.info("Imagine you're a chemist using a camera to monitor reactions through a microscope. As lighting changes or lenses fog, the representative image histograms drift. The supervisor can flag these calibration changes automatically - before your image analysis pipeline starts producing unreliable results. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
 
 # Global run type to control demo modes for all adapters
 run_type = st.selectbox(
     "Run type",
-    ["default", "drift", "storm", "high_cal_drift", "high_semantic_drift", "random"],
+    ["default", "drift", "storm", "high_cal_drift", "random"],
     index=0,
     help="Preset generation modes applied to the selected adapter",
 )
