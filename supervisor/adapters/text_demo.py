@@ -16,12 +16,12 @@ class TextAdapter:
         self._topic_shift = 0.0
         self._noise_level = 0.0
         self._storm_p = 0.0
-        # run_type controls event generation behaviour: 'default', 'drift', 'storm'
+        # run_type controls event generation behavior: 'default', 'drift', 'storm'
         self.run_type = 'default'
         self._rand_params = None
         # internal event counter for time-varying runs
         self._t = 0
-        # storm state for 'storm' mode
+        # storm state
         self._storm_active = False
         self._storm_remaining = 0
         # small probability of variance

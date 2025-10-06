@@ -72,7 +72,7 @@ class ImageAdapter:
         if self.run_type == 'default':
             # tiny occasional bright pixels
             if self.rng.random() < 0.03:
-                bright += 0.05
+                bright += 0.04
         elif self.run_type == 'drift':
             run_start = getattr(self, "_run_start", 0)
             rel_t = max(0, int(self._t) - int(run_start))
@@ -85,7 +85,7 @@ class ImageAdapter:
                 self._storm_remaining = int(self.rng.integers(6, 36))
             if self._storm_active:
                 # strong brightening
-                bright += 0.4
+                bright += 0.41
                 contrast *= 1.5
                 self._storm_remaining -= 1
                 if self._storm_remaining <= 0:

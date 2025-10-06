@@ -3,7 +3,7 @@ from supervisor.utils import emd1d
 
 
 class SignalsAdapter:
-    """synthetic numeric stream producing (vec, aux, meta).
+    """Synthetic numeric stream producing (vec, aux, meta).
 
     - vec: d-dimensional gaussian around a centroid
     - aux: calibration proxy = emd between current noise histogram and a baseline
@@ -24,7 +24,7 @@ class SignalsAdapter:
             range=(-4, 4),
         )[0]
 
-        # user-tunable knobs
+        # user-tunable knobs (opt.)
         self._topic_drift = 0.0  # semantic drift strength
         self._cal_tilt = 0.0     # mean shift for aux distribution
         self._storm_p = 0.0      # per-event aux burst probability
@@ -45,7 +45,7 @@ class SignalsAdapter:
             self._cal_tilt = float(cal_tilt)
         if storm_p is not None:
             self._storm_p = float(storm_p)
-        # If caller passes a string as topic_drift treat it as run_type (backwards compat)
+        # if caller passes a string as topic_drift treat it as run_type (backwards compat)
         if isinstance(topic_drift, str):
             self.run_type = topic_drift
             # reset random params when switching to random mode
@@ -85,19 +85,18 @@ class SignalsAdapter:
         aux: calibration proxy (EMD to baseline histogram)
         meta: dict of parameters/state
         """
-        # behavior varies by run_type
         mean_shift = 0.0
         mu = 0.0
-        # run_type: default (quiet)
+        
         if self.run_type == 'default':
             mean_shift = self._topic_drift * 1.5
             mu = self._cal_tilt * 1.0
             # occasional small burst
-            if self.rng.random() < 0.02:
+            if self.rng.random() < 0.01:
                 # small aux burst
                 mu += 1.5
 
-    # --- run_type: drift (ramping semantic and calibration over time)
+
         elif self.run_type == 'drift':
             run_start = getattr(self, "_run_start", 0)
             rel_t = max(0, int(self._t) - int(run_start))
@@ -105,7 +104,7 @@ class SignalsAdapter:
             mean_shift = self._topic_drift * 4.0 * frac
             mu = self._cal_tilt * 2.0 * frac
 
-        # --- run_type: storm (multi-event storms)
+
         elif self.run_type == 'storm':
             # start a storm window occasionally
             if not self._storm_active and self.rng.random() < 0.06:
@@ -122,17 +121,17 @@ class SignalsAdapter:
                 mean_shift = self._topic_drift * 1.0
                 mu = self._cal_tilt * 1.0
 
-        # --- run_type: high_cal_drift (consistently elevated calibration drift)
+
         elif self.run_type == 'high_cal_drift':
             mean_shift = self._topic_drift * 0.5
             mu = 2.0 + abs(self._cal_tilt) * 2.0
 
-        # --- run_type: high_semantic_drift (consistently elevated semantic drift)
+
         elif self.run_type == 'high_semantic_drift':
             mean_shift = 3.0 + abs(self._topic_drift) * 3.0
             mu = self._cal_tilt * 0.4
 
-        # --- run_type: random (pick a random configuration once per run)
+
         elif self.run_type == 'random':
             if self._rand_params is None:
                 # sample persistent random scales for this run
