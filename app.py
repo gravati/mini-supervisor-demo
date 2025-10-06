@@ -15,13 +15,12 @@ st.title("Mini Supervisor — Drift Demo")
 adapter_name = st.radio("Adapter", ["Signals", "Text", "Image"], horizontal=True)
 
 # Display info textbox
-info_box = None
 if adapter_name == "Signals":
-    info_box = st.info("Imagine you're a physicist operating a telescope array. Each antenna produces numeric telemetry describing its signal noise profile. Over time, temp or hardware aging can cause those noise distributions to shift. The supervisor tracks both the feature vectors (signal shape) and the calibration histograms (sensor stability) and can warn you before the instrument degrades. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
+    st.info("Imagine you're a physicist operating a telescope array. Each antenna produces numeric telemetry describing its signal noise profile. Over time, temp or hardware aging can cause those noise distributions to shift. The supervisor tracks both the feature vectors (signal shape) and the calibration histograms (sensor stability) and can warn you before the instrument degrades. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
 elif adapter_name == "Text":
-    info_box = st.info("Imagine you're monitoring a LLM 'agent' meant to operate a vending machine. The supervisor can track its 'chain of thought' and actions (such as emails to vendors) to ensure that the agent remains focused on its assigned task and isn't hallucinating scenarios or acting out of context. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
+    st.info("Imagine you're monitoring a LLM 'agent' meant to operate a vending machine. The supervisor can track its 'chain of thought' and actions (such as emails to vendors) to ensure that the agent remains focused on its assigned task and isn't hallucinating or acting out of context. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
 else:
-    info_box = st.info("Imagine you're a chemist using a camera to monitor reactions through a microscope. As lighting changes or lenses fog, image histograms drift. The supervisor can flag these calibration changes automatically - before your image analysis pipeline starts producing unreliable results. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
+    st.info("Imagine you're a chemist using a camera to monitor reactions through a microscope. As lighting changes or lenses fog, image histograms drift. The supervisor can flag these calibration changes automatically - before your image analysis pipeline starts producing unreliable results. Change the run type, thresholds/weights, and storm settings to see how the supervisor responds.")
 
 # Global run type to control demo modes for all adapters
 run_type = st.selectbox(
@@ -67,15 +66,7 @@ storm_p = 0.0
 n_events = st.number_input("Events to emit", min_value=1, max_value=2000, value=200, step=10)
 show_push = st.checkbox("Show push bars (fused - WARN)", value=False)
 
-# -----------------------------
-# Baseline reset control
-# -----------------------------
-# The UI exposes the "Force reset baseline" checkbox.
-# When checked and the user clicks Run, the baseline will be refit on 200 samples.
-
-# -----------------------------
 # Build / refresh supervisor + adapter when adapter changes
-# -----------------------------
 if "sup" not in st.session_state or st.session_state.get("adapter_name") != adapter_name:
     st.session_state.sup = MiniSupervisor(
         enable_storm=enable_storm,
@@ -114,7 +105,6 @@ sup.w_sem = float(sem_weight)
 sup.w_cal = float(1.0 - sem_weight)
 
 ad = st.session_state.adapter
-# Apply the chosen run_type to adapter and clear legacy per-adapter knobs
 try:
     ad.run_type = run_type
 except Exception:
@@ -157,9 +147,7 @@ try:
 except Exception:
     pass
 
-# -----------------------------
 # Run
-# -----------------------------
 force_reset = st.checkbox("Force reset baseline", value=False)
 
 if st.button("Run"):
@@ -181,7 +169,6 @@ if st.button("Run"):
     except Exception:
         pass
     # For image-like adapters, refit the baseline using the current adapter params
-    # when running a non-default mode so the drift ramps relative to the intended start state.
     try:
         if adapter_name == 'Image' and run_type in ('drift', 'high_cal_drift', 'high_semantic_drift', 'random'):
             vecs, aux = ad.baseline_batch(200, force_recompute=True)
@@ -346,13 +333,10 @@ if st.button("Run"):
     st.session_state["last_counts"] = counts
     st.json(counts)
 
-# Show previous results if present
-if "results_df" in st.session_state and not st.session_state.get("_displayed_prev", False):
-    st.session_state["_displayed_prev"] = True
-    df = st.session_state["results_df"]
-    with st.expander("Previous results (this session)", expanded=False):
-        st.bar_chart(df[["sem_z", "cal_z"]], height=150)
-        st.line_chart(df["fused"].rename("fused"), height=150)
-        counts = st.session_state.get("last_counts", {})
-        if counts:
-            st.json(counts)
+with st.expander("How is synthetic data generated?", expanded = False):
+    if adapter_name == 'Signals':
+        st.info("The signals adapter generates random numeric vectors centered around a baseline centroid. The centroid shifts over time (semantic drift), and a separate histogram of noise amplitudes (aux) shifts or spikes (calibration drift). Short bursts simulate 'storms' where calibration channels are unstable.")
+    elif adapter_name == 'Text':
+        st.info("The text adapter uses tiny TF-IDF vectors from a glossary of technical terms. It will inject incorrect puncutation, padding, or off-topic phrases into events depending on run type. These manipulations simulate the text shifting topics (semantic drift) and changing structure (calibration drift via text length).")
+    else:
+        st.info("The image adapter produces small grayscale noise images and computes 32-bin intensity histograms to represent features. Adjusting brightness and contrast simulates optical degradation or exposure errors. Randomized bright patches simulate short bursts of sensor saturation.")
