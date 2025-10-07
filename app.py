@@ -340,3 +340,5 @@ with st.expander("How is synthetic data generated?", expanded = False):
         st.info("The text adapter uses tiny TF-IDF vectors from a glossary of technical terms. It will inject incorrect puncutation, padding, or off-topic phrases into events depending on run type. These manipulations simulate the text shifting topics (semantic drift) and changing structure (calibration drift via text length).")
     else:
         st.info("The image adapter produces small grayscale noise images and computes 32-bin intensity histograms to represent features. Adjusting brightness and contrast simulates optical degradation or exposure errors. Randomized bright patches simulate short bursts of sensor saturation.")
+
+st.text("Interested in implementing this architecture in your data pipeline? Let's talk! **hlyons2@luc.edu**")
